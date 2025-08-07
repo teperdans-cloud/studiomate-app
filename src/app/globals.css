@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FFFEF7;
+  --foreground: #171717;
+  --primary: #0077BE;
+  --secondary: #FFCBA4;
+  --accent: #E07A5F;
+  --success: #B7E4C7;
+  --creative: #C1A7D4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'Source Sans Pro', sans-serif;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Crimson Text', serif;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* Mediterranean design system utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .gallery-card {
+    @apply bg-background border border-gray-200 rounded-organic shadow-warm transition-all duration-300 hover:shadow-warm-lg;
+  }
+  
+  .gallery-card:hover {
+    @apply transform translate-y-[-2px];
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-3 rounded-organic font-medium shadow-warm hover:bg-primary-600 hover:shadow-warm-md transition-all duration-300;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-gray-800 px-6 py-3 rounded-organic font-medium shadow-warm hover:bg-secondary-500 hover:shadow-warm-md transition-all duration-300;
+  }
+  
+  .btn-accent {
+    @apply bg-accent text-white px-6 py-3 rounded-organic font-medium shadow-warm hover:bg-accent-600 hover:shadow-warm-md transition-all duration-300;
+  }
+  
+  .form-input {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-organic bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-300;
+  }
+  
+  .form-input:focus {
+    @apply outline-none shadow-warm;
+  }
+  
+  .text-heading {
+    @apply font-crimson text-gray-900;
+  }
+  
+  .text-body {
+    @apply font-source-sans text-gray-700;
+  }
+}
