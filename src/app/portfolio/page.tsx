@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import ArtworkUpload from '@/components/ArtworkUpload'
 import ArtworkGallery from '@/components/ArtworkGallery'
 import ArtworkCollections from '@/components/ArtworkCollections'
@@ -70,22 +69,15 @@ export default function PortfolioPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <LoadingSpinner size="lg" className="mx-auto" />
-            <p className="mt-4 text-gray-600 font-source-sans">Loading your portfolio...</p>
-          </div>
-        </div>
+      <div className="text-center">
+        <LoadingSpinner size="lg" className="mx-auto" />
+        <p className="mt-4 text-gray-600 font-source-sans">Loading your portfolio...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8">
+    <div>
         {/* Breadcrumbs */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6 font-source-sans">
           <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
@@ -230,7 +222,6 @@ export default function PortfolioPage() {
             </button>
           )}
         </div>
-      </div>
     </div>
   )
 }

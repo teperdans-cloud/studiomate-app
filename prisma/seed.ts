@@ -1,82 +1,167 @@
-const { PrismaClient } = require('@prisma/client')
-const fs = require('fs')
-const path = require('path')
+import { PrismaClient } from '@prisma/client'
+import { parse } from 'csv-parse'
+import { createHash } from 'crypto'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 const prisma = new PrismaClient()
 
-function parseCSV(csvContent: string): any[] {
-  const lines = csvContent.split('\n')
-  const headers = lines[0].split(',').map(h => h.replace(/"/g, ''))
-  
-  return lines.slice(1).filter(line => line.trim()).map(line => {
-    const values: string[] = []
-    let current = ''
-    let inQuotes = false
-    
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i]
-      
-      if (char === '"') {
-        inQuotes = !inQuotes
-      } else if (char === ',' && !inQuotes) {
-        values.push(current.trim())
-        current = ''
-      } else {
-        current += char
-      }
-    }
-    values.push(current.trim())
-    
-    const obj: any = {}
-    headers.forEach((header, index) => {
-      obj[header] = values[index] || ''
-    })
-    return obj
-  })
+interface OpportunityRow {
+  title: string
+  organizer: string
+  description: string
+  location: string
+  type: string
+  deadline: string
+  eligibility: string
+  artTypes: string
+  prize: string
+  link: string
 }
 
-function parseDeadline(deadlineStr: string): Date {
-  if (!deadlineStr || deadlineStr === 'Accepting Invitations') {
-    return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year from now
+function generateDeterministicId(title: string, organizer: string, deadline: string, link: string): string {
+  const content = `${title}|${organizer}|${deadline}|${link}`
+  return createHash('sha256').update(content).digest('hex').substring(0, 24)
+}
+
+function parseDeadline(deadlineStr: string): Date | null {
+  try {
+    // Handle various date formats in the CSV
+    // Examples: "2 Sep 2025, 3 pm AEST (MGNSW, Creative Australia)", "Rolling in 2025", "June 2, 2025"
+    
+    // Extract main date part before any parentheses or additional info
+    let cleanDeadline = deadlineStr.split('(')[0].split(',')[0].trim()
+    
+    // Handle "Rolling" dates by setting to end of year
+    if (cleanDeadline.toLowerCase().includes('rolling')) {
+      const yearMatch = deadlineStr.match(/\b(20\d{2})\b/)
+      if (yearMatch) {
+        return new Date(`December 31, ${yearMatch[1]}`)
+      }
+      return new Date('December 31, 2025') // Default fallback
+    }
+    
+    // Handle "Applications open for" format
+    if (cleanDeadline.toLowerCase().includes('applications open for')) {
+      const yearMatch = deadlineStr.match(/\b(20\d{2})\b/)
+      if (yearMatch) {
+        return new Date(`December 31, ${yearMatch[1]}`)
+      }
+      return new Date('December 31, 2025') // Default fallback
+    }
+    
+    // Try parsing standard date formats
+    const parsed = new Date(cleanDeadline)
+    if (!isNaN(parsed.getTime())) {
+      return parsed
+    }
+    
+    // Fallback: try with current year if no year specified
+    const currentYear = new Date().getFullYear()
+    const withYear = `${cleanDeadline} ${currentYear}`
+    const parsedWithYear = new Date(withYear)
+    if (!isNaN(parsedWithYear.getTime())) {
+      return parsedWithYear
+    }
+    
+    console.warn(`Unable to parse deadline: ${deadlineStr}, using default`)
+    return new Date('December 31, 2025') // Safe fallback
+  } catch (error) {
+    console.warn(`Error parsing deadline "${deadlineStr}":`, error)
+    return null
+  }
+}
+
+async function processOpportunitiesInBatches(opportunities: OpportunityRow[], batchSize: number = 100) {
+  const validOpportunities: OpportunityRow[] = []
+  
+  // Filter out rows with invalid deadlines
+  for (const opp of opportunities) {
+    const parsedDeadline = parseDeadline(opp.deadline)
+    if (parsedDeadline) {
+      validOpportunities.push(opp)
+    } else {
+      console.warn(`Skipping opportunity "${opp.title}" due to invalid deadline: ${opp.deadline}`)
+    }
   }
   
-  const parts = deadlineStr.split('/')
-  if (parts.length === 3) {
-    const day = parseInt(parts[0])
-    const month = parseInt(parts[1])
-    const year = parseInt(parts[2])
-    return new Date(year, month - 1, day)
+  console.log(`Processing ${validOpportunities.length} valid opportunities in batches of ${batchSize}`)
+  
+  for (let i = 0; i < validOpportunities.length; i += batchSize) {
+    const batch = validOpportunities.slice(i, i + batchSize)
+    const upsertPromises = batch.map(async (opp) => {
+      const id = generateDeterministicId(opp.title, opp.organizer, opp.deadline, opp.link)
+      const parsedDeadline = parseDeadline(opp.deadline)!
+      
+      return prisma.opportunity.upsert({
+        where: { id },
+        create: {
+          id,
+          title: opp.title.trim(),
+          description: opp.description.trim(),
+          organizer: opp.organizer.trim(),
+          location: opp.location.trim(),
+          type: opp.type.trim(),
+          deadline: parsedDeadline,
+          link: opp.link.trim() || null,
+          eligibility: opp.eligibility.trim(),
+          artTypes: opp.artTypes.trim() || null,
+          prize: opp.prize.trim() || null,
+        },
+        update: {
+          title: opp.title.trim(),
+          description: opp.description.trim(),
+          organizer: opp.organizer.trim(),
+          location: opp.location.trim(),
+          type: opp.type.trim(),
+          deadline: parsedDeadline,
+          link: opp.link.trim() || null,
+          eligibility: opp.eligibility.trim(),
+          artTypes: opp.artTypes.trim() || null,
+          prize: opp.prize.trim() || null,
+        },
+      })
+    })
+    
+    await Promise.all(upsertPromises)
+    console.log(`Processed batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(validOpportunities.length / batchSize)}`)
   }
   
-  return new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
+  console.log(`Successfully processed ${validOpportunities.length} opportunities`)
 }
 
 async function main() {
-  const csvPath = path.join(__dirname, '..', 'opportunities-data.csv')
-  const csvContent = fs.readFileSync(csvPath, 'utf-8')
-  const opportunities = parseCSV(csvContent)
-  
-  console.log('Seeding database with opportunities...')
-  
-  for (const opp of opportunities) {
-    await prisma.opportunity.create({
-      data: {
-        title: opp.title,
-        description: opp.description,
-        organizer: opp.organizer,
-        location: opp.location,
-        type: opp.type,
-        deadline: parseDeadline(opp.deadline),
-        link: opp.link || null,
-        eligibility: opp.eligibility,
-        artTypes: opp.artTypes,
-        fee: opp.fee === 'na' ? null : opp.fee,
-        prize: opp.prize === 'NA' ? null : opp.prize,
-      }
+  try {
+    console.log('🌱 Starting opportunities seed...')
+    
+    const csvPath = join(__dirname, 'seed-data', 'artist-opportunities-database.csv')
+    const csvContent = readFileSync(csvPath, 'utf-8')
+    
+    const records: OpportunityRow[] = await new Promise((resolve, reject) => {
+      parse(csvContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true,
+      }, (err, records) => {
+        if (err) reject(err)
+        else resolve(records as OpportunityRow[])
+      })
     })
+    
+    console.log(`📁 Loaded ${records.length} opportunities from CSV`)
+    
+    await processOpportunitiesInBatches(records)
+    
+    // Get final count
+    const totalCount = await prisma.opportunity.count()
+    console.log(`✅ Seeding complete! Total opportunities in database: ${totalCount}`)
+    
+  } catch (error) {
+    console.error('❌ Error during seed:', error)
+    throw error
+  } finally {
+    await prisma.$disconnect()
   }
-  
-  console.log('Database seeded successfully!')
 }
 
 main()

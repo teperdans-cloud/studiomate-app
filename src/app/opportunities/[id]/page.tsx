@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import Navigation from '@/components/Navigation'
 import Link from 'next/link'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ErrorMessage from '@/components/ErrorMessage'
@@ -33,13 +32,7 @@ export default function OpportunityDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (opportunityId) {
-      fetchOpportunity()
-    }
-  }, [opportunityId])
-
-  const fetchOpportunity = async () => {
+  const fetchOpportunity = useCallback(async () => {
     try {
       setError(null)
       const response = await fetch(`/api/opportunities?id=${opportunityId}`)
@@ -56,7 +49,13 @@ export default function OpportunityDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [opportunityId])
+
+  useEffect(() => {
+    if (opportunityId) {
+      fetchOpportunity()
+    }
+  }, [opportunityId, fetchOpportunity])
 
   const isDeadlinePassed = (deadline: string) => {
     return new Date(deadline) < new Date()
@@ -64,8 +63,7 @@ export default function OpportunityDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto" />
@@ -78,8 +76,7 @@ export default function OpportunityDetailPage() {
 
   if (error || !opportunity) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <ErrorMessage 
             title="Opportunity Not Found"
@@ -95,8 +92,7 @@ export default function OpportunityDetailPage() {
   const deadlinePassed = isDeadlinePassed(opportunity.deadline)
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div>
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6 font-source-sans">

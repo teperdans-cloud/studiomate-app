@@ -1,10 +1,9 @@
 'use client'
 
-import Link from "next/link";
-import Navigation from "@/components/Navigation";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Home() {
   const { data: session } = useSession()
@@ -15,101 +14,184 @@ export default function Home() {
       router.push('/dashboard')
     }
   }, [session, router])
+
+  const navigateToSignIn = () => {
+    router.push('/auth/signin')
+  }
+
+  const navigateToSignUp = () => {
+    router.push('/auth/signup')
+  }
+
+  const navigateToOpportunities = () => {
+    router.push('/opportunities')
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary-50">
-      <Navigation />
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-crimson font-bold text-gray-900 mb-4">StudioMate</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto font-source-sans">
-            AI-powered matching platform connecting Australian artists with relevant opportunities and generating tailored applications.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-          <Link href={session ? "/dashboard" : "/auth/signin"} className="gallery-card p-6 hover:shadow-gallery-hover transition-all duration-300 cursor-pointer group">
-            <div className="w-12 h-12 bg-primary-100 rounded-organic flex items-center justify-center mb-4 group-hover:bg-primary-200 transition-colors duration-300">
-              <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+    <div className="landing-page">
+      {/* Fixed Navigation Header */}
+      <nav className="landing-nav">
+        <div className="nav-container">
+          <div className="nav-left">
+            <div className="logo-brand">
+              <Image
+                src="/logos/artmatch-full-logo.png"
+                alt="StudioMate logo"
+                width={40}
+                height={40}
+                className="nav-logo w-10 h-10 object-contain"
+              />
+              <span className="brand-name">StudioMate</span>
             </div>
-            <h3 className="text-lg font-crimson font-semibold mb-3 text-gray-900 group-hover:text-primary transition-colors duration-300">Smart Matching</h3>
-            <p className="text-gray-600 font-source-sans">
-              AI analyzes your profile and matches you with relevant grants, residencies, and exhibitions.
-            </p>
-            <div className="mt-4 text-primary font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {session ? "Go to Dashboard →" : "Sign in to explore →"}
-            </div>
-          </Link>
-          
-          <Link href={session ? "/portfolio" : "/auth/signin"} className="gallery-card p-6 hover:shadow-gallery-hover transition-all duration-300 cursor-pointer group">
-            <div className="w-12 h-12 bg-secondary-100 rounded-organic flex items-center justify-center mb-4 group-hover:bg-secondary-200 transition-colors duration-300">
-              <svg className="w-6 h-6 text-secondary-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-crimson font-semibold mb-3 text-gray-900 group-hover:text-secondary-700 transition-colors duration-300">Portfolio Management</h3>
-            <p className="text-gray-600 font-source-sans">
-              Upload, organize, and showcase your artwork with professional presentation tools.
-            </p>
-            <div className="mt-4 text-secondary-700 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {session ? "Manage Portfolio →" : "Sign in to start →"}
-            </div>
-          </Link>
-          
-          <Link href={session ? "/applications" : "/auth/signin"} className="gallery-card p-6 hover:shadow-gallery-hover transition-all duration-300 cursor-pointer group">
-            <div className="w-12 h-12 bg-accent-100 rounded-organic flex items-center justify-center mb-4 group-hover:bg-accent-200 transition-colors duration-300">
-              <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-crimson font-semibold mb-3 text-gray-900 group-hover:text-accent transition-colors duration-300">Application Tracking</h3>
-            <p className="text-gray-600 font-source-sans">
-              Track all your submissions and generate personalized artist statements for each opportunity.
-            </p>
-            <div className="mt-4 text-accent font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {session ? "View Applications →" : "Sign in to track →"}
-            </div>
-          </Link>
-          
-          <Link href={session ? "/calendar" : "/auth/signin"} className="gallery-card p-6 hover:shadow-gallery-hover transition-all duration-300 cursor-pointer group md:col-span-2 lg:col-span-1">
-            <div className="w-12 h-12 bg-success-100 rounded-organic flex items-center justify-center mb-4 group-hover:bg-success-200 transition-colors duration-300">
-              <svg className="w-6 h-6 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-crimson font-semibold mb-3 text-gray-900 group-hover:text-success-600 transition-colors duration-300">Deadline Calendar</h3>
-            <p className="text-gray-600 font-source-sans">
-              Never miss an opportunity with our calendar system and smart reminder notifications.
-            </p>
-            <div className="mt-4 text-success-600 font-medium text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              {session ? "Open Calendar →" : "Sign in to schedule →"}
-            </div>
-          </Link>
-        </div>
-
-        <div className="text-center space-y-4">
-          <div className="space-x-4">
-            <Link 
-              href="/opportunities" 
-              className="btn-primary inline-block"
-            >
-              Browse Opportunities
-            </Link>
-            {!session && (
-              <Link 
-                href="/auth/signin" 
-                className="btn-secondary inline-block"
-              >
-                Sign In
-              </Link>
-            )}
           </div>
-          <p className="text-gray-600 text-sm font-source-sans">
-            Join the Australian art community and take your career to the next level.
-          </p>
+          <div className="nav-right">
+            <button 
+              onClick={navigateToOpportunities} 
+              className="btn btn-ghost nav-link"
+            >
+              Opportunities
+            </button>
+            <button 
+              onClick={navigateToSignIn} 
+              className="btn btn-secondary sign-in-btn"
+            >
+              Sign In
+            </button>
+            <button 
+              onClick={navigateToSignUp} 
+              className="btn btn-primary create-account-btn"
+            >
+              Create Account
+            </button>
+          </div>
         </div>
-      </div>
+      </nav>
+
+      {/* Hero Section with Logo */}
+      <section className="hero-section">
+        <div className="hero-container">
+          <div className="hero-content">
+            {/* Use the same logo as dashboard */}
+            <div className="hero-logo-container">
+              <Image
+                src="/logos/artmatch-full-logo.png"
+                alt="StudioMate logo"
+                width={120}
+                height={120}
+                className="hero-logo w-24 h-24 mx-auto object-contain"
+              />
+            </div>
+            
+            <h1 className="hero-title">StudioMate</h1>
+            <p className="hero-subtitle">
+              AI-powered matching platform connecting Australian artists with relevant 
+              opportunities and generating tailored applications.
+            </p>
+            
+            <div className="hero-actions">
+              <button 
+                onClick={navigateToSignUp} 
+                className="btn btn-primary btn-lg hero-cta shadow-soft"
+              >
+                <span className="btn-icon">✨</span>
+                Get Started
+              </button>
+              <button 
+                onClick={navigateToSignIn} 
+                className="btn btn-secondary btn-lg hero-secondary shadow-soft"
+              >
+                <span className="btn-icon">🔑</span>
+                Sign In
+              </button>
+            </div>
+            
+            <p className="hero-tagline">
+              Join the Australian art community and take your career to the next level.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section with Modern Icons */}
+      <section className="features-section">
+        <div className="features-container">
+          <h2 className="features-title">Everything you need to advance your artistic career</h2>
+          
+          <div className="features-grid">
+            <div className="card bg-base-100 shadow-xl feature-card">
+              <div className="feature-icon smart-matching">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"/>
+                </svg>
+              </div>
+              <h3>Smart Matching</h3>
+              <p>AI analyzes your profile and matches you with relevant grants, residencies, and exhibitions.</p>
+            </div>
+            
+            <div className="card bg-base-100 shadow-xl feature-card">
+              <div className="feature-icon portfolio">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <polyline points="21,15 16,10 5,21"/>
+                </svg>
+              </div>
+              <h3>Portfolio Management</h3>
+              <p>Upload, organize, and showcase your artwork with professional presentation tools.</p>
+            </div>
+            
+            <div className="card bg-base-100 shadow-xl feature-card">
+              <div className="feature-icon applications">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14,2 14,8 20,8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10,9 9,9 8,9"/>
+                </svg>
+              </div>
+              <h3>Application Tracking</h3>
+              <p>Track all your submissions and generate personalized artist statements for each opportunity.</p>
+            </div>
+            
+            <div className="card bg-base-100 shadow-xl feature-card">
+              <div className="feature-icon calendar">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+              </div>
+              <h3>Deadline Calendar</h3>
+              <p>Never miss an opportunity with our calendar system and smart reminder notifications.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action Section */}
+      <section className="cta-section">
+        <div className="cta-container">
+          <h2>Ready to advance your artistic career?</h2>
+          <p>Join hundreds of Australian artists already using StudioMate</p>
+          <div className="cta-actions">
+            <button 
+              onClick={navigateToSignUp} 
+              className="btn btn-primary btn-lg cta-primary shadow-soft"
+            >
+              Create Your Profile
+            </button>
+            <button 
+              onClick={navigateToOpportunities} 
+              className="btn btn-ghost btn-lg cta-secondary"
+            >
+              Browse Opportunities →
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

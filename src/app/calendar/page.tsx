@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ErrorMessage from '@/components/ErrorMessage'
 
@@ -75,8 +74,7 @@ export default function CalendarPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto" />
@@ -89,8 +87,7 @@ export default function CalendarPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <ErrorMessage 
             title="Calendar Error"
@@ -104,8 +101,7 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div>
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6 font-source-sans">

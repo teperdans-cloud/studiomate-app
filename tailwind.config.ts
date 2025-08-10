@@ -6,9 +6,19 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  darkMode: 'class', // Only enable dark mode via .dark class, ignore browser preference
   theme: {
     extend: {
       colors: {
+        // StudioMate Brand Colors
+        'cream-primary': '#fff5e9',
+        'cream-secondary': '#f0dcc9',
+        'cream-accent': '#e8d5c4',
+        'blue-interactive': '#5170ff',
+        'blue-hover': '#004aad',
+        'editorial-charcoal': '#1a1a1a',
+        'medium-gray': '#666666',
+        
         primary: {
           DEFAULT: '#0077BE',
           50: '#E6F3FF',
@@ -124,6 +134,34 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
+  daisyui: {
+    themes: [
+      {
+        "studiomate-dashboard": {
+          "primary": "#5170FF",            // Primary blue
+          "primary-content": "#FFFFFF",
+          "primary-focus": "#004AAD",       // Hover/pressed blue
+          "secondary": "#FFF4E6",          // Cream
+          "secondary-content": "#1F2937",
+          "accent": "#4F46E5",             // Indigo accent
+          "neutral": "#2D1810",            // Warm charcoal for headings
+          "base-100": "#FFF5E9",           // Warm cream canvas
+          "base-200": "#FFFFFF",           // White card surface
+          "base-300": "#F0DCC9",           // Light borders
+          "info": "#38BDF8",
+          "success": "#28A745",            // Updated green
+          "warning": "#FF6B35",            // Updated orange
+          "error": "#DC3545",              // Updated red
+          "--rounded-box": "0.75rem",      // card rounding
+          "--rounded-btn": "0.75rem",
+          "--rounded-badge": "1rem",
+          "--btn-text-case": "none",       // keep labels as typed
+          "--animation-btn": "0.2s",
+          "--shadow": "0 6px 20px rgba(0,0,0,0.06)"
+        }
+      }
+    ]
+  },
 };
 export default config;

@@ -1,9 +1,8 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import Link from 'next/link'
 import LoadingSpinner from '@/components/LoadingSpinner'
 import ErrorMessage from '@/components/ErrorMessage'
@@ -43,22 +42,7 @@ export default function NewApplicationPage() {
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!session) {
-      router.push('/auth/signin')
-      return
-    }
-
-    if (!opportunityId) {
-      setError('No opportunity selected')
-      setLoading(false)
-      return
-    }
-
-    fetchData()
-  }, [session, router, opportunityId])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setError(null)
       
@@ -89,7 +73,22 @@ export default function NewApplicationPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [opportunityId, router])
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/auth/signin')
+      return
+    }
+
+    if (!opportunityId) {
+      setError('No opportunity selected')
+      setLoading(false)
+      return
+    }
+
+    fetchData()
+  }, [session, router, opportunityId, fetchData])
 
   const handleGenerateApplication = async () => {
     if (!opportunity || !artist) return
@@ -127,8 +126,7 @@ export default function NewApplicationPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <LoadingSpinner size="lg" className="mx-auto" />
@@ -141,8 +139,7 @@ export default function NewApplicationPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <ErrorMessage 
             title="Application Generation Error"
@@ -162,8 +159,7 @@ export default function NewApplicationPage() {
 
   if (!opportunity) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-crimson font-bold text-gray-900 mb-4">Opportunity Not Found</h1>
@@ -177,8 +173,7 @@ export default function NewApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <div>
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6 font-source-sans">

@@ -14,6 +14,7 @@ model User {
   id            String    @id @default(cuid())
   email         String    @unique
   name          String?
+  password      String?
   image         String?
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
@@ -68,17 +69,21 @@ model VerificationToken {
 }
 
 model Artist {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  bio              String?
-  location         String?
-  website          String?
-  instagramHandle  String?
-  careerStage      String?
-  artisticFocus    String?
-  interestedRegions String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                     String                  @id @default(cuid())
+  userId                 String                  @unique
+  bio                    String?
+  location               String?
+  website                String?
+  instagramHandle        String?
+  careerStage            String?
+  artisticFocus          String?
+  interestedRegions      String?
+  awards                 String?                 // JSON string for awards/achievements
+  cvData                 String?                 // JSON string for parsed CV data
+  cvFileName             String?                 // Original CV filename
+  cvUploadedAt           DateTime?               // When CV was uploaded
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
   
   // Relations
   user                   User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -126,7 +131,6 @@ model Opportunity {
   link         String?
   eligibility  String
   artTypes     String?
-  fee          String?
   prize        String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

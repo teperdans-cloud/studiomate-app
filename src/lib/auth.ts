@@ -1,6 +1,7 @@
 import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/lib/prisma'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import bcrypt from 'bcryptjs'
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -10,22 +11,42 @@ export const authOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         name: { label: 'Name', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email) return null
+        if (!credentials?.email || !credentials?.password) return null
         
-        // For demo purposes, create or find user
+        // Find existing user
         let user = await prisma.user.findUnique({
           where: { email: credentials.email }
         })
         
         if (!user) {
-          user = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.name || credentials.email.split('@')[0],
-            }
-          })
+          // Create new user if signing up (has name field)
+          if (credentials.name) {
+            const hashedPassword = await bcrypt.hash(credentials.password, 12)
+            user = await prisma.user.create({
+              data: {
+                email: credentials.email,
+                name: credentials.name,
+                password: hashedPassword,
+              }
+            })
+          } else {
+            // No user found and no name provided (sign in attempt)
+            return null
+          }
+        } else {
+          // Verify password for existing user
+          if (!user.password) {
+            // User exists but has no password (legacy user)
+            return null
+          }
+          
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          if (!isPasswordValid) {
+            return null
+          }
         }
         
         return {

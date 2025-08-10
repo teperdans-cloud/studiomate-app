@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
+import DrawerLayout from "@/components/DrawerLayout";
 
 export const metadata: Metadata = {
   title: "StudioMate - AI-Powered Art Opportunities",
@@ -13,10 +14,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased bg-background text-gray-900">
+    <html lang="en" data-theme="studiomate-dashboard">
+      <body className="antialiased bg-base-100 text-neutral">
         <SessionProvider>
-          {children}
+          <DrawerLayout>
+            {children}
+          </DrawerLayout>
         </SessionProvider>
       </body>
     </html>

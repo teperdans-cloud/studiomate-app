@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import Navigation from '@/components/Navigation'
 import { useParams } from 'next/navigation'
 
 interface ApplicationData {
@@ -90,8 +89,7 @@ export default function ApplicationPage() {
 
   if (isLoading || isGenerating) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -106,8 +104,7 @@ export default function ApplicationPage() {
 
   if (!application) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
+      <div>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Not Found</h1>
@@ -124,8 +121,7 @@ export default function ApplicationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
+    <div>
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-8">

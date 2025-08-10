@@ -2,6 +2,7 @@ import { google } from 'googleapis'
 import { calendar_v3 } from 'googleapis'
 import { OAuth2Client } from 'google-auth-library'
 import { CalendarEvent } from './calendar'
+import { prisma } from './prisma'
 
 export interface GoogleCalendarConfig {
   clientId: string

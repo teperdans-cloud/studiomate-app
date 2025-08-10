@@ -2,161 +2,242 @@
 
 import { useSession, signOut } from 'next-auth/react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
-export default function Navigation() {
+interface NavigationProps {
+  onLinkClick?: () => void
+}
+
+export default function Navigation({ onLinkClick }: NavigationProps) {
   const { data: session } = useSession()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+  const [isMounted, setIsMounted] = useState(false)
 
-  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-  const closeMenu = () => setIsMenuOpen(false)
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
 
   const navigationLinks = [
-    { href: '/opportunities', label: 'Opportunities', public: true },
-    { href: '/dashboard', label: 'Dashboard', protected: true },
-    { href: '/portfolio', label: 'Portfolio', protected: true },
-    { href: '/applications', label: 'Applications', protected: true },
-    { href: '/calendar', label: 'Calendar', protected: true },
-    { href: '/profile/setup', label: 'Profile Settings', protected: true },
+    { 
+      href: '/dashboard', 
+      label: 'Dashboard', 
+      protected: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z" />
+        </svg>
+      )
+    },
+    { 
+      href: '/opportunities', 
+      label: 'Opportunities', 
+      public: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    { 
+      href: '/portfolio', 
+      label: 'Portfolio', 
+      protected: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+      )
+    },
+    { 
+      href: '/applications', 
+      label: 'Applications', 
+      protected: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      )
+    },
+    { 
+      href: '/calendar', 
+      label: 'Calendar', 
+      protected: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      )
+    },
+    { 
+      href: '/profile/setup', 
+      label: 'Profile Settings', 
+      protected: true,
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      )
+    },
   ]
 
-  return (
-    <nav className="bg-background shadow-warm border-b border-secondary-200">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="text-2xl font-crimson font-bold text-primary">
-            StudioMate
-          </Link>
+  const handleLinkClick = () => {
+    if (onLinkClick) {
+      onLinkClick()
+    }
+  }
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            {navigationLinks.map((link) => {
-              if (link.protected && !session) return null
-              if (!link.protected && !link.public) return null
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-body text-gray-600 hover:text-primary transition-colors duration-300"
-                >
-                  {link.label}
-                </Link>
-              )
-            })}
-          </div>
-          
-          {/* Desktop Auth Actions */}
-          <div className="hidden md:flex items-center space-x-4">
-            {session ? (
-              <>
-                <span className="text-body text-gray-700 hidden lg:block">
-                  Welcome, {session.user?.name || session.user?.email}
-                </span>
-                <button
-                  onClick={() => signOut()}
-                  className="bg-gray-600 text-white px-4 py-2 rounded-organic hover:bg-gray-700 shadow-warm-sm hover:shadow-warm transition-all duration-300"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <div className="flex items-center space-x-3">
-                <Link
-                  href="/auth/signin"
-                  className="text-gray-600 hover:text-primary transition-colors duration-300 text-sm font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  href="/auth/signup"
-                  className="btn-primary text-sm px-4 py-2"
-                >
-                  Create Account
-                </Link>
+  const isActiveLink = (href: string) => {
+    return pathname === href
+  }
+
+  if (!isMounted) {
+    return (
+      <nav className="flex flex-col h-full">
+        <div className="flex-1 py-4">
+          <ul className="space-y-2 px-3">
+            <li className="animate-pulse">
+              <div className="flex items-center space-x-3 px-3 py-2">
+                <div className="w-5 h-5 bg-base-300 rounded"></div>
+                <div className="w-20 h-4 bg-base-300 rounded"></div>
               </div>
-            )}
-          </div>
-
-          {/* Mobile Hamburger Button */}
-          <button
-            onClick={toggleMenu}
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-            aria-label="Toggle menu"
-          >
-            <svg
-              className={`w-6 h-6 transition-transform duration-200 ${isMenuOpen ? 'rotate-90' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+            </li>
+          </ul>
         </div>
+      </nav>
+    )
+  }
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden border-t border-secondary-200 bg-background">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {navigationLinks.map((link) => {
-                if (link.protected && !session) return null
-                if (!link.protected && !link.public) return null
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={closeMenu}
-                    className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors duration-200"
-                  >
-                    {link.label}
-                  </Link>
-                )
-              })}
-              
-              {/* Mobile Auth Actions */}
-              <div className="border-t border-secondary-200 pt-4 mt-4">
-                {session ? (
-                  <>
-                    <div className="px-3 py-2 text-sm text-gray-500">
-                      Welcome, {session.user?.name || session.user?.email}
-                    </div>
-                    <button
-                      onClick={() => {
-                        signOut()
-                        closeMenu()
-                      }}
-                      className="block w-full text-left px-3 py-2 text-base font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors duration-200"
-                    >
-                      Sign Out
-                    </button>
-                  </>
-                ) : (
-                  <div className="space-y-2">
-                    <Link
-                      href="/auth/signin"
-                      onClick={closeMenu}
-                      className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-primary hover:bg-gray-50 rounded-md transition-colors duration-200"
-                    >
-                      Sign In
-                    </Link>
-                    <Link
-                      href="/auth/signup"
-                      onClick={closeMenu}
-                      className="block mx-3 mb-2 btn-primary text-center"
-                    >
-                      Create Account
-                    </Link>
-                  </div>
-                )}
+  return (
+    <nav className="flex flex-col h-full">
+      {/* User Profile Section - Match screenshot */}
+      {session && (
+        <div className="p-4 border-b border-base-300">
+          <div className="flex items-center space-x-3">
+            <div className="avatar placeholder">
+              <div className="bg-primary text-primary-content rounded-full w-10">
+                <span className="text-sm font-semibold">
+                  {session.user?.name?.charAt(0) || 'P'}
+                </span>
               </div>
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-crimson font-semibold text-neutral text-lg">
+                {session.user?.name || 'Pedro Guarracino'}
+              </p>
+              <p className="text-sm text-gray-500 font-source-sans">
+                Creative Workspace
+              </p>
+            </div>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Navigation Links */}
+      <div className="flex-1 py-4">
+        <div className="px-3 mb-3">
+          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-source-sans">NAVIGATION</h4>
+        </div>
+        <ul className="space-y-1 px-3">
+          {navigationLinks.map((link) => {
+            if (link.protected && !session) return null
+            if (!link.protected && !link.public) return null
+            
+            const isActive = isActiveLink(link.href)
+            
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={handleLinkClick}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
+                    isActive
+                      ? 'bg-primary text-white shadow-md'
+                      : 'text-neutral hover:bg-white/50 hover:text-primary'
+                  }`}
+                >
+                  {link.icon}
+                  <span>{link.label}</span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+
+      {/* Account Section */}
+      <div className="flex-1 py-4 mt-6">
+        <div className="px-3 mb-3">
+          <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider font-source-sans">ACCOUNT</h4>
+        </div>
+        <ul className="space-y-1 px-3">
+          <li>
+            <Link
+              href="/profile/setup"
+              onClick={handleLinkClick}
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-neutral hover:bg-white/50 hover:text-primary"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>Profile</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/settings"
+              onClick={handleLinkClick}
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-neutral hover:bg-white/50 hover:text-primary"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span>Settings</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/help"
+              onClick={handleLinkClick}
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-neutral hover:bg-white/50 hover:text-primary"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Help</span>
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/billing"
+              onClick={handleLinkClick}
+              className="flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200 text-neutral hover:bg-white/50 hover:text-primary"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <span>Billing</span>
+            </Link>
+          </li>
+          {session && (
+            <li>
+              <button
+                onClick={() => {
+                  signOut()
+                  handleLinkClick()
+                }}
+                className="flex items-center space-x-3 w-full px-3 py-2 text-sm font-medium text-neutral hover:bg-white/50 hover:text-error rounded-lg transition-colors duration-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Sign Out</span>
+              </button>
+            </li>
+          )}
+        </ul>
       </div>
     </nav>
   )

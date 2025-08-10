@@ -7,7 +7,7 @@ import Link from 'next/link'
 
 export default function SignInPage() {
   const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -17,36 +17,29 @@ export default function SignInPage() {
     setIsLoading(true)
     setError('')
 
-    if (!email || !name) {
+    if (!email || !password) {
       setError('Please fill in all fields')
       setIsLoading(false)
       return
     }
 
     try {
-      // Check if user exists first
-      const checkResponse = await fetch('/api/auth/check-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      
-      const checkData = await checkResponse.json()
-      
-      if (!checkData.exists) {
-        setError('No account found with this email. Please create an account first.')
-        setIsLoading(false)
-        return
-      }
-
       const result = await signIn('credentials', {
         email,
-        name,
+        password,
         redirect: false,
       })
 
       if (result?.ok) {
-        router.push('/dashboard')
+        // Check if user has a profile
+        const profileResponse = await fetch('/api/profile')
+        const profileData = await profileResponse.json()
+        
+        if (profileData.artist) {
+          router.push('/dashboard')
+        } else {
+          router.push('/profile/setup')
+        }
       } else {
         setError('Failed to sign in. Please check your details and try again.')
       }
@@ -59,7 +52,7 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-base-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-center text-3xl font-crimson font-bold text-gray-900">
@@ -96,18 +89,19 @@ export default function SignInPage() {
               </div>
               
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 font-source-sans">
-                  Name
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 font-source-sans">
+                  Password
                 </label>
                 <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  autoComplete="name"
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
                   required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="mt-1 form-input"
+                  placeholder="Enter your password"
                 />
               </div>
             </div>

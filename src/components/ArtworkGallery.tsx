@@ -207,7 +207,7 @@ export default function ArtworkGallery({
                   <div className="flex space-x-1">
                     <button
                       onClick={() => setSelectedArtwork(artwork)}
-                      className="p-2 bg-black/50 text-white rounded-organic hover:bg-black/70 transition-colors"
+                      className="p-2 bg-neutral/80 text-white rounded-organic hover:bg-neutral/90 transition-colors"
                       title="View Details"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,8 +273,8 @@ export default function ArtworkGallery({
 
       {/* Modal for artwork details */}
       {selectedArtwork && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-background rounded-organic-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="overlay-frost flex items-center justify-center p-4 z-50">
+          <div className="bg-base-100 rounded-organic-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-2xl font-crimson font-semibold text-gray-900">

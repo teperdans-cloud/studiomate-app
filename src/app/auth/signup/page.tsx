@@ -8,6 +8,8 @@ import Link from 'next/link'
 export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
@@ -17,37 +19,43 @@ export default function SignUpPage() {
     setIsLoading(true)
     setError('')
 
-    if (!email || !name) {
+    if (!email || !name || !password || !confirmPassword) {
       setError('Please fill in all fields')
       setIsLoading(false)
       return
     }
 
-    try {
-      // First check if user already exists
-      const checkResponse = await fetch('/api/auth/check-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      })
-      
-      const checkData = await checkResponse.json()
-      
-      if (checkData.exists) {
-        setError('An account with this email already exists. Please sign in instead.')
-        setIsLoading(false)
-        return
-      }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long')
+      setIsLoading(false)
+      return
+    }
 
-      // Create account by signing in (which will create the user)
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      setIsLoading(false)
+      return
+    }
+
+    try {
+      // Create account by signing in (which will create the user if it doesn't exist)
       const result = await signIn('credentials', {
         email,
         name,
+        password,
         redirect: false,
       })
 
       if (result?.ok) {
-        router.push('/dashboard')
+        // Check if user has a profile, if not redirect to profile setup
+        const profileResponse = await fetch('/api/profile')
+        const profileData = await profileResponse.json()
+        
+        if (profileData.artist) {
+          router.push('/dashboard')
+        } else {
+          router.push('/profile/setup')
+        }
       } else {
         setError('Failed to create account. Please try again.')
       }
@@ -60,7 +68,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+    <div className="min-h-screen bg-base-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="mt-6 text-center text-3xl font-crimson font-bold text-gray-900">
@@ -111,6 +119,40 @@ export default function SignUpPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   className="mt-1 form-input"
                   placeholder="Enter your email"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 font-source-sans">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="mt-1 form-input"
+                  placeholder="Enter your password (min. 8 characters)"
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 font-source-sans">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="mt-1 form-input"
+                  placeholder="Confirm your password"
                 />
               </div>
             </div>

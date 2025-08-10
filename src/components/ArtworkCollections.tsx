@@ -354,7 +354,7 @@ export default function ArtworkCollections({ artworks, className = '' }: Artwork
                               {...provided.dragHandleProps}
                               className={`
                                 flex items-center space-x-3 p-3 rounded-organic border border-gray-200 
-                                bg-background hover:shadow-warm cursor-move transition-all duration-300
+                                bg-base-100 hover:shadow-warm cursor-move transition-all duration-300
                                 ${snapshot.isDragging ? 'shadow-warm-lg rotate-2' : ''}
                               `}
                             >
